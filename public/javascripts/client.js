@@ -16,3 +16,8 @@ $(function(){
         });
     });				
 });
+
+// on startup set pin 26 on
+$(function() {
+  $.ajax({type: 'POST', url: '/ajax', contentType: 'application/json', data: JSON.stringify({action:"write", gpio:26, status: true})})
+})

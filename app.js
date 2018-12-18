@@ -1,5 +1,7 @@
 var express = require('express');
 var path = require('path');
+var process = require('process');
+var rpio = require('rpio');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
@@ -62,4 +64,18 @@ app.use(function(err, req, res, next) {
 });
 
 app.listen(app.get('port'));
+
+function setRPIO({ gpio, status }) {
+  rpio.init({ mapping: 'gpio' })
+rpio.open(gpio, rpio.OUTPUT, +status);
+rpio.write(gpio, +status);
+}
+
+// Pin 26 reflects our status
+process.on('SIGINT', function() {
+  setRPIO({ gpio: 26, status: false })
+})
+
+// on startup turn on 
+setRPIO({ gpio: 26, status: true })
 module.exports = app;
