@@ -65,16 +65,25 @@ app.use(function(err, req, res, next) {
 
 app.listen(app.get('port'));
 
+// TODO we need to mind our init/open/close lifecycle tightly
 function setRPIO({ gpio, status }) {
   rpio.init({ mapping: 'gpio' })
-rpio.open(gpio, rpio.OUTPUT, +status);
-rpio.write(gpio, +status);
+  rpio.open(gpio, rpio.OUTPUT, +status);
+  rpio.write(gpio, +status);
 }
 
 // Pin 26 reflects our status
-process.on('SIGINT', function() {
-  setRPIO({ gpio: 26, status: false })
-})
+process.on("SIGINT", function () { shutdown(); process.exit(); } );
+process.on("exit", shutdown);
+function shutdown() {
+try{
+  const gpio = 26
+  setRPIO({ gpio, status: false });
+  rpio.close(gpio);
+}catch(ex) { 
+  console.log('Error: ' + ex.message);
+}
+}
 
 // on startup turn on 
 setRPIO({ gpio: 26, status: true })
