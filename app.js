@@ -11,7 +11,7 @@ var users = require("./routes/users");
 var ajax = require("./routes/ajax");
 
 const { agent, after } = require("rx-helper");
-const { concat, Observable } = require("rxjs");
+const { concat, Observable, empty } = require("rxjs");
 require("dotenv").config();
 
 var app = express();
@@ -196,6 +196,28 @@ function setUpAgent() {
     },
     { type: "setColor" }
   );
+
+  // LEFTOFF doesn't work - kills the Pi! :( durned IOT
+  // agent.on(
+  //   "buttonEvent",
+  //   ({ action }) => {
+  //     const { pin, status } = action.payload;
+  //     // if (!status && pin === buttonPin) {
+  //     //   return empty();
+  //     // }
+
+  //     // return a dance which a) ACKs by blinking red, then
+  //     // b) turns green for 2500 msec, then reverts to off
+  //     return concat(
+  //       after(0, "off"),
+  //       after(250, "red"),
+  //       after(250, "off"),
+  //       after(250, "green"),
+  //       after(2500, "off")
+  //     );
+  //   },
+  //   { concurrency: "mute", type: "setColor" }
+  // );
 
   agent.on("setColor", ({ action }) => {
     const color = action.payload;
