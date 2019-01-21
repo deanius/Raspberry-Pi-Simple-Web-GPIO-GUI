@@ -122,6 +122,10 @@ function pp({ type, payload = {} }) {
 
 function setUpAgent() {
   // Filters run synchronously!
+  // See what events we get
+  agent.addFilter(({ action }) => console.log(pp(action)));
+
+  // Make a graceful exit
   agent.filter("shutdown", function shutdown() {
     try {
       setRed(false);
@@ -132,10 +136,8 @@ function setUpAgent() {
       console.log("Error: " + ex.message);
     }
   });
-  // See what events we get
-  agent.addFilter(({ action }) => console.log(pp(action)));
 
-  // Process a buttonEvent" }
+  // Process a buttonEvent
   agent.on(
     "initButtons",
     () => {
@@ -198,26 +200,24 @@ function setUpAgent() {
   );
 
   // LEFTOFF doesn't work - kills the Pi! :( durned IOT
-  // agent.on(
-  //   "buttonEvent",
-  //   ({ action }) => {
-  //     const { pin, status } = action.payload;
-  //     // if (!status && pin === buttonPin) {
-  //     //   return empty();
-  //     // }
+  agent.on(
+    "buttonEvent",
+    ({ action }) => {
+      const { pin, status } = action.payload;
+      // if (!status && pin === buttonPin) {
+      //   return empty();
+      // }
 
-  //     // return a dance which a) ACKs by blinking red, then
-  //     // b) turns green for 2500 msec, then reverts to off
-  //     return concat(
-  //       after(0, "off"),
-  //       after(250, "red"),
-  //       after(250, "off"),
-  //       after(250, "green"),
-  //       after(2500, "off")
-  //     );
-  //   },
-  //   { concurrency: "mute", type: "setColor" }
-  // );
+      // return a dance which turns green for 2500 msec, then reverts to off
+      return concat(
+        after(0, "off"),
+        after(200, "green"),
+        after(2500, "off"),
+        after(200, "red")
+      );
+    },
+    { concurrency: "mute", type: "setColor" }
+  );
 
   agent.on("setColor", ({ action }) => {
     const color = action.payload;
