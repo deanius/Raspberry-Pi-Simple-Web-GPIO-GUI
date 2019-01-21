@@ -148,6 +148,11 @@ function setUpAgent() {
       return new Observable(notify => {
         rpio.poll(buttonPin, pin => {
           try {
+            /*
+             * Wait for a small period of time to avoid rapid changes which
+             * can't all be caught with the 1ms polling frequency.  If the
+             * pin is no longer down after the wait then ignore it.
+             */
             rpio.msleep(20);
             const state = rpio.read(pin);
             notify.next({ pin, state });
@@ -166,6 +171,9 @@ function setUpAgent() {
     "start",
     () => {
       rpio.init({ mapping: "gpio" });
+      // spare us the need of a wire to do this
+      rpio.pud(buttonPin, rpio.PULL_DOWN);
+
       [statusPin, greenPin, redPin].forEach(pin => {
         rpio.open(pin, rpio.OUTPUT, rpio.LOW);
       });
