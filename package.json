@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "stop": "pkill node"
   },
   "dependencies": {
     "body-parser": "~1.15.1",
@@ -14,7 +15,9 @@
     "express": "~4.13.4",
     "jade": "~1.11.0",
     "morgan": "~1.7.0",
+    "node-rfid": "^1.0.7",
     "rpio": "^0.9.12",
+    "rx-helper": "^1.0.1",
     "rxjs": "^6.3.3",
     "serve-favicon": "~2.3.0"
   }
