@@ -11,7 +11,7 @@ var users = require("./routes/users");
 var ajax = require("./routes/ajax");
 
 const { agent, after } = require("rx-helper");
-const { concat } = require("rxjs");
+const { concat, Observable } = require("rxjs");
 require("dotenv").config();
 
 var app = express();
@@ -69,8 +69,10 @@ app.listen(app.get("port"));
 const redPin = 5;
 const greenPin = 6;
 const statusPin = 26;
+const buttonPin = 16;
 setUpAgent();
 agent.process({ type: "start" });
+agent.process({ type: "initButtons" });
 
 process.on("SIGINT", function() {
   agent.process({ type: "shutdown" });
@@ -103,7 +105,6 @@ function setStatus(status = true) {
 }
 
 function setRPIO({ gpio, status }) {
-  rpio.open(gpio, rpio.OUTPUT, +status);
   rpio.write(gpio, +status);
 }
 
@@ -119,11 +120,43 @@ function setUpAgent() {
       console.log("Error: " + ex.message);
     }
   });
+  // See what events we get
+  agent.addFilter(({ action }) => console.log("Saw: " + action.type));
+
+  // Process a buttonEvent" }
+  agent.on(
+    "initButtons",
+    () => {
+      /*
+       * Use the internal pulldown resistor to default to off.  Pressing the button
+       * causes the input to go high, releasing it leaves the pulldown resistor to
+       * pull it back down to low.
+       */
+      rpio.open(buttonPin, rpio.INPUT);
+      return new Observable(notify => {
+        rpio.poll(buttonPin, pin => {
+          try {
+            rpio.msleep(20);
+            const buttonState = rpio.read(pin);
+            notify.next(buttonState);
+          } catch (ex) {
+            console.log("Button error: " + ex.message);
+            // notify.error(ex)
+          }
+        });
+        return () => rpio.close(buttonPin);
+      });
+    },
+    { type: "buttonEvent" }
+  );
 
   agent.on(
     "start",
     () => {
       rpio.init({ mapping: "gpio" });
+      [statusPin, greenPin, redPin].forEach(pin => {
+        rpio.open(pin, rpio.OUTPUT, rpio.LOW);
+      });
       // on startup turn on status
       setStatus(true);
       setRed(false);
