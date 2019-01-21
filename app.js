@@ -108,6 +108,18 @@ function setRPIO({ gpio, status }) {
   rpio.write(gpio, +status);
 }
 
+function pp({ type, payload = {} }) {
+  return (
+    type +
+    ": " +
+    (typeof payload !== "object"
+      ? payload
+      : Array.from(Object.keys(payload))
+          .map(k => `${k}: ${payload[k]}`)
+          .join(", "))
+  );
+}
+
 function setUpAgent() {
   // Filters run synchronously!
   agent.filter("shutdown", function shutdown() {
@@ -121,7 +133,7 @@ function setUpAgent() {
     }
   });
   // See what events we get
-  agent.addFilter(({ action }) => console.log("Saw: " + action.type));
+  agent.addFilter(({ action }) => console.log(pp(action)));
 
   // Process a buttonEvent" }
   agent.on(
@@ -137,8 +149,8 @@ function setUpAgent() {
         rpio.poll(buttonPin, pin => {
           try {
             rpio.msleep(20);
-            const buttonState = rpio.read(pin);
-            notify.next(buttonState);
+            const state = rpio.read(pin);
+            notify.next({ pin, state });
           } catch (ex) {
             console.log("Button error: " + ex.message);
             // notify.error(ex)
