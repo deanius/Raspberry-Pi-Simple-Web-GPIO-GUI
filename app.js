@@ -136,6 +136,40 @@ function setUpAgent() {
       console.log("Error: " + ex.message);
     }
   });
+  // See what events we get
+  agent.addFilter(({ action }) => console.log(pp(action)));
+
+  // Process a buttonEvent" }
+  agent.on(
+    "initButtons",
+    () => {
+      /*
+       * Use the internal pulldown resistor to default to off.  Pressing the button
+       * causes the input to go high, releasing it leaves the pulldown resistor to
+       * pull it back down to low.
+       */
+      rpio.open(buttonPin, rpio.INPUT);
+      return new Observable(notify => {
+        rpio.poll(buttonPin, pin => {
+          try {
+            /*
+             * Wait for a small period of time to avoid rapid changes which
+             * can't all be caught with the 1ms polling frequency.  If the
+             * pin is no longer down after the wait then ignore it.
+             */
+            rpio.msleep(20);
+            const state = rpio.read(pin);
+            notify.next({ pin, state });
+          } catch (ex) {
+            console.log("Button error: " + ex.message);
+            // notify.error(ex)
+          }
+        });
+        return () => rpio.close(buttonPin);
+      });
+    },
+    { type: "buttonEvent" }
+  );
 
   // Process a buttonEvent
   agent.on(
