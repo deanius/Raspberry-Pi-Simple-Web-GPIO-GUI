@@ -53,7 +53,7 @@ function setUpAgent() {
         try {
           rpio.msleep(20);
           const state = rpio.read(pin);
-          trigger("buttonEvent", { pin, state });
+          // trigger("buttonEvent", { pin, state });
         } catch (ex) {
           console.log("Button error: " + ex.message);
         }
