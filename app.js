@@ -63,7 +63,7 @@ app.use(function(err, req, res, next) {
   });
 });
 
-app.listen(app.get("port"));
+app.listen(app.get("port") || 3141);
 
 // We have a single white (RGB) bulb, we dont control blue, and we control RG on 5/6
 const redPin = 5;
