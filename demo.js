@@ -50,7 +50,7 @@ function setUpAgent() {
        * causes the input to go high, releasing it leaves the pulldown resistor to
        * pull it back down to low.
        */
-      rpio.open(buttonPin, rpio.INPUT);
+      // rpio.open(buttonPin, rpio.INPUT);
       return new Observable(notify => {
         rpio.poll(buttonPin, pin => {
           try {
