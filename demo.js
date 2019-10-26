@@ -162,5 +162,3 @@ function pp({ type, payload = {} }) {
           .join(", "))
   );
 }
-
-module.exports = app;
