@@ -11,7 +11,7 @@ var users = require("./routes/users");
 var ajax = require("./routes/ajax");
 
 const { agent, after } = require("rx-helper");
-const { concat, Observable, empty } = require("rxjs");
+const { concat, Observable } = require("rxjs");
 require("dotenv").config();
 
 var app = express();
@@ -123,21 +123,12 @@ function pp({ type, payload = {} }) {
 function setUpAgent() {
   // Filters run synchronously!
   // See what events we get
-  agent.addFilter(({ action }) => console.log(pp(action)));
+  agent.spy(({ action }) => console.log(pp(action)));
 
   // Make a graceful exit
-  agent.filter("shutdown", function shutdown() {
-    try {
-      setRed(false);
-      setGreen(false);
-      setStatus(false);
-      [statusPin, greenPin, redPin].forEach(pin => rpio.close(pin));
-    } catch (ex) {
-      console.log("Error: " + ex.message);
-    }
-  });
+  agent.filter("shutdown", handleShutdown);
   // See what events we get
-  agent.addFilter(({ action }) => console.log(pp(action)));
+  agent.spy(({ action }) => console.log(pp(action)));
 
   // Process a buttonEvent" }
   agent.on(
@@ -270,6 +261,16 @@ function setUpAgent() {
   });
 }
 
+function handleShutdown() {
+  try {
+    setRed(false);
+    setGreen(false);
+    setStatus(false);
+    [statusPin, greenPin, redPin].forEach(pin => rpio.close(pin));
+  } catch (ex) {
+    console.log("Error: " + ex.message);
+  }
+}
 // const { Observable } = require("rxjs");
 // const validKeys = [
 //   "198,169,99,26", // white card
