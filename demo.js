@@ -38,9 +38,6 @@ function setUpAgent() {
   // See what events we get
   pubsub.spy(({ event }) => console.log(pp(event)));
 
-  // Make a graceful exit
-  pubsub.filter("shutdown", handleShutdown);
-
   pubsub.on(
     "start",
     () => {
@@ -87,7 +84,7 @@ function setUpAgent() {
   });
 
   pubsub.on("setColor", ({ event }) => {
-    const color = action.payload;
+    const color = event.payload;
     switch (color) {
       case "red":
         turnRedOn();
