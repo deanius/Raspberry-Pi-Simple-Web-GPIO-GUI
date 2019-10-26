@@ -30,9 +30,9 @@ const redPin = 5;
 const greenPin = 6;
 const statusPin = 26;
 const buttonPin = 16;
+
 setUpAgent();
-pubsub.process({ type: "start" });
-pubsub.process({ type: "initButtons" });
+agent.trigger('start')
 
 function setUpAgent() {
   // See what events we get
