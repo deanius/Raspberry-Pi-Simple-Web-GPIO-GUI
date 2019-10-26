@@ -123,12 +123,12 @@ function pp({ type, payload = {} }) {
 function setUpAgent() {
   // Filters run synchronously!
   // See what events we get
-  agent.spy(({ action }) => console.log(pp(action)));
+  agent.spy(({ event }) => console.log(pp(event)));
 
   // Make a graceful exit
   agent.filter("shutdown", handleShutdown);
   // See what events we get
-  agent.spy(({ action }) => console.log(pp(action)));
+  agent.spy(({ event }) => console.log(pp(event)));
 
   // Process a buttonEvent" }
   agent.on(
@@ -227,8 +227,8 @@ function setUpAgent() {
   // LEFTOFF doesn't work - kills the Pi! :( durned IOT
   agent.on(
     "buttonEvent",
-    ({ action }) => {
-      const { pin, status } = action.payload;
+    ({ event }) => {
+      const { pin, status } = event.payload;
       // if (!status && pin === buttonPin) {
       //   return empty();
       // }
@@ -244,7 +244,7 @@ function setUpAgent() {
     { concurrency: "mute", type: "setColor" }
   );
 
-  agent.on("setColor", ({ action }) => {
+  agent.on("setColor", ({ event }) => {
     const color = action.payload;
     switch (color) {
       case "red":
