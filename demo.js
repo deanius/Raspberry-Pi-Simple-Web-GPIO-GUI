@@ -34,59 +34,6 @@ setUpAgent();
 pubsub.process({ type: "start" });
 pubsub.process({ type: "initButtons" });
 
-function setGreen(status = true) {
-  if (status) {
-    // must turn off 5 red to have 6 green on
-    setRPIO({ gpio: redPin, status: false });
-    setRPIO({ gpio: greenPin, status: true });
-  } else {
-    setRPIO({ gpio: greenPin, status: false });
-  }
-}
-
-function setRed(status = true) {
-  if (status) {
-    // turn off 6 green to show 5 red
-    setRPIO({ gpio: greenPin, status: false });
-    setRPIO({ gpio: redPin, status: true });
-  } else {
-    setRPIO({ gpio: redPin, status: false });
-  }
-}
-
-function turnGreenOn() {
-  setGreen(true);
-}
-function turnGreenOff() {
-  setGreen(false);
-}
-function turnRedOn() {
-  setRed(true);
-}
-function turnRedOff() {
-  setRed(false);
-}
-
-function setStatus(status = true) {
-  setRPIO({ gpio: statusPin, status });
-}
-
-function setRPIO({ gpio, status }) {
-  rpio.write(gpio, +status);
-}
-
-function pp({ type, payload = {} }) {
-  return (
-    type +
-    ": " +
-    (typeof payload !== "object"
-      ? payload
-      : Array.from(Object.keys(payload))
-          .map(k => `${k}: ${payload[k]}`)
-          .join(", "))
-  );
-}
-
 function setUpAgent() {
   // See what events we get
   pubsub.spy(({ event }) => console.log(pp(event)));
@@ -218,42 +165,59 @@ function buzzThemIn() {
     after(200, () => trigger("setColor", "red"))
   );
 }
-// const { Observable } = require("rxjs");
-// const validKeys = [
-//   "198,169,99,26", // white card
-//   "166,168,89,211" // blue fob
-// ];
-// const rfids = new Observable(notify => {
-// const spawn = require("child_process").spawn;
-//   console.log("spawning python process...");
-//   const child = spawn("sudo", ["python", "/home/pi/src/gpio-gui/rfid/Read.py"]);
-//   child.stdout.setEncoding("utf8");
-//   child.stdout.on("data", function(data) {
-//     const noNewline = data.replace(/\s$/, "");
 
-//     if (noNewline.indexOf("UID") === -1) return;
-//     const rfid = noNewline.split(": ")[1];
-//     notify.next(rfid);
-//     // notify.next(noNewline);
-//   });
-//   child.on("close", function(code) {
-//     if (!code) {
-//       notify.complete();
-//       return;
-//     }
-//     notify.error(code);
-//   });
 
-//   return () => child.kill();
-// });
+function setGreen(status = true) {
+  if (status) {
+    // must turn off 5 red to have 6 green on
+    setRPIO({ gpio: redPin, status: false });
+    setRPIO({ gpio: greenPin, status: true });
+  } else {
+    setRPIO({ gpio: greenPin, status: false });
+  }
+}
 
-// const rfid = require("node-rfid");
+function setRed(status = true) {
+  if (status) {
+    // turn off 6 green to show 5 red
+    setRPIO({ gpio: greenPin, status: false });
+    setRPIO({ gpio: redPin, status: true });
+  } else {
+    setRPIO({ gpio: redPin, status: false });
+  }
+}
 
-// const rfids = new Observable(notify => {
-//   rfid.read(function(err, result) {
-//     if (err) console.log("Sorry, some hardware error occurred"); //some kind of hardware/wire error
-//     notify.next(result);
-//   });
-// });
+function turnGreenOn() {
+  setGreen(true);
+}
+function turnGreenOff() {
+  setGreen(false);
+}
+function turnRedOn() {
+  setRed(true);
+}
+function turnRedOff() {
+  setRed(false);
+}
+
+function setStatus(status = true) {
+  setRPIO({ gpio: statusPin, status });
+}
+
+function setRPIO({ gpio, status }) {
+  rpio.write(gpio, +status);
+}
+
+function pp({ type, payload = {} }) {
+  return (
+    type +
+    ": " +
+    (typeof payload !== "object"
+      ? payload
+      : Array.from(Object.keys(payload))
+          .map(k => `${k}: ${payload[k]}`)
+          .join(", "))
+  );
+}
 
 module.exports = app;
