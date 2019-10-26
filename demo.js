@@ -1,5 +1,5 @@
 const process = require("process");
-// const rpio = require("rpio");
+const rpio = require("rpio");
 const { agent: pubsub, after } = require("rx-helper");
 const { concat, Observable } = require("rxjs");
 
