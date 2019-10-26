@@ -3,27 +3,12 @@ const rpio = require("rpio");
 const { agent: pubsub, after } = require("rx-helper");
 const { concat, Observable } = require("rxjs");
 
-// A function that runs when a 'shutdown' event is triggered
-function handleShutdown() {
-  try {
-    turnRedOff();
-    turnGreenOff();
-    setStatus(false);
-    // [statusPin, greenPin, redPin].forEach(pin => rpio.close(pin));
-  } catch (ex) {
-    console.log("Error: " + ex.message);
-  }
-}
-
 // Two ways we might hook, and then trigger, a 'shutdown' event.
 process.on("SIGINT", function() {
   pubsub.trigger("shutdown");
   process.exit();
 });
 process.on("exit", () => pubsub.trigger("shutdown"));
-
-// The agent's mechanism
-pubsub.on("shutdown", handleShutdown);
 
 // We have a single white (RGB) bulb, we dont control blue, and we control RG on 5/6
 const redPin = 5;
@@ -93,6 +78,19 @@ function setupPubsub() {
         break;
     }
   });
+
+  // graceful shutdown
+  pubsub.on("shutdown", function handleShutdown() {
+    try {
+      turnRedOff();
+      turnGreenOff();
+      setStatus(false);
+      // [statusPin, greenPin, redPin].forEach(pin => rpio.close(pin));
+    } catch (ex) {
+      console.log("Error: " + ex.message);
+    }
+  });
+
 }
 
 function buzzThemIn() {
