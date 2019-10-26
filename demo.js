@@ -65,8 +65,7 @@ pubsub.on(
     //   after(500, "off"),
     //   after(500, "red")
     // );
-  },
-  { type: "setColor" }
+  }
 );
 
 pubsub.trigger("start");
