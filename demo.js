@@ -6,10 +6,10 @@ const { concat, Observable } = require("rxjs");
 // A function that runs when a 'shutdown' event is triggered
 function handleShutdown() {
   try {
-    setRed(false);
-    setGreen(false);
+    turnRedOff();
+    turnGreenOff();
     setStatus(false);
-    [statusPin, greenPin, redPin].forEach(pin => rpio.close(pin));
+    // [statusPin, greenPin, redPin].forEach(pin => rpio.close(pin));
   } catch (ex) {
     console.log("Error: " + ex.message);
   }
@@ -38,11 +38,9 @@ pubsub.on(
     // rpio.init({ mapping: "gpio" });
     // // spare us the need of a wire to do this
     // rpio.pud(buttonPin, rpio.PULL_DOWN);
-
     // [statusPin, greenPin, redPin].forEach(pin => {
     //   rpio.open(pin, rpio.OUTPUT, rpio.LOW);
     // });
-
     // rpio.poll(buttonPin, pin => {
     //   try {
     //     rpio.msleep(20);
@@ -52,12 +50,10 @@ pubsub.on(
     //     console.log("Button error: " + ex.message);
     //   }
     // });
-
     // // on startup turn on status
     // setStatus(true);
     // turnRedOff();
     // turnGreenOff();
-
     // // Return the startup dance
     // return concat(
     //   after(2000, () => setStatus(false)),
@@ -73,7 +69,7 @@ pubsub.on(
   { type: "setColor" }
 );
 
-pubsub.trigger('start')
+pubsub.trigger("start");
 
 function setupPubsub() {
   // See what events we get
