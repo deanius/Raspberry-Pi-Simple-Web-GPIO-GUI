@@ -1,5 +1,5 @@
 const process = require("process");
-const rpio = require("rpio");
+// const rpio = require("rpio");
 const { agent: pubsub, after } = require("rx-helper");
 const { concat, Observable } = require("rxjs");
 
@@ -31,53 +31,53 @@ const greenPin = 6;
 const statusPin = 26;
 const buttonPin = 16;
 
-setUpAgent();
+setupPubsub();
+pubsub.on(
+  "start",
+  () => {
+    // rpio.init({ mapping: "gpio" });
+    // // spare us the need of a wire to do this
+    // rpio.pud(buttonPin, rpio.PULL_DOWN);
+
+    // [statusPin, greenPin, redPin].forEach(pin => {
+    //   rpio.open(pin, rpio.OUTPUT, rpio.LOW);
+    // });
+
+    // rpio.poll(buttonPin, pin => {
+    //   try {
+    //     rpio.msleep(20);
+    //     const state = rpio.read(pin);
+    //     // trigger("buttonEvent", { pin, state });
+    //   } catch (ex) {
+    //     console.log("Button error: " + ex.message);
+    //   }
+    // });
+
+    // // on startup turn on status
+    // setStatus(true);
+    // turnRedOff();
+    // turnGreenOff();
+
+    // // Return the startup dance
+    // return concat(
+    //   after(2000, () => setStatus(false)),
+    //   after(500, "red"),
+    //   after(500, "off"),
+    //   after(500, "red"),
+    //   after(500, "off"),
+    //   after(500, "red"),
+    //   after(500, "off"),
+    //   after(500, "red")
+    // );
+  },
+  { type: "setColor" }
+);
+
 pubsub.trigger('start')
 
-function setUpAgent() {
+function setupPubsub() {
   // See what events we get
   pubsub.spy(({ event }) => console.log(pp(event)));
-
-  pubsub.on(
-    "start",
-    () => {
-      // rpio.init({ mapping: "gpio" });
-      // // spare us the need of a wire to do this
-      // rpio.pud(buttonPin, rpio.PULL_DOWN);
-
-      // [statusPin, greenPin, redPin].forEach(pin => {
-      //   rpio.open(pin, rpio.OUTPUT, rpio.LOW);
-      // });
-
-      // rpio.poll(buttonPin, pin => {
-      //   try {
-      //     rpio.msleep(20);
-      //     const state = rpio.read(pin);
-      //     // trigger("buttonEvent", { pin, state });
-      //   } catch (ex) {
-      //     console.log("Button error: " + ex.message);
-      //   }
-      // });
-
-      // // on startup turn on status
-      // setStatus(true);
-      // turnRedOff();
-      // turnGreenOff();
-
-      // // Return the startup dance
-      // return concat(
-      //   after(2000, () => setStatus(false)),
-      //   after(500, "red"),
-      //   after(500, "off"),
-      //   after(500, "red"),
-      //   after(500, "off"),
-      //   after(500, "red"),
-      //   after(500, "off"),
-      //   after(500, "red")
-      // );
-    },
-    { type: "setColor" }
-  );
 
   pubsub.on("buttonEvent", buzzThemIn, {
     concurrency: "mute"
