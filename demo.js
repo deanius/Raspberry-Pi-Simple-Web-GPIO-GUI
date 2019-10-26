@@ -20,7 +20,7 @@ process.on("SIGINT", function() {
   pubsub.trigger("shutdown");
   process.exit();
 });
-process.on("exit", () => agent.trigger("shutdown"));
+process.on("exit", () => pubsub.trigger("shutdown"));
 
 // The agent's mechanism
 pubsub.on("shutdown", handleShutdown);
@@ -32,7 +32,7 @@ const statusPin = 26;
 const buttonPin = 16;
 
 setUpAgent();
-agent.trigger('start')
+pubsub.trigger('start')
 
 function setUpAgent() {
   // See what events we get
