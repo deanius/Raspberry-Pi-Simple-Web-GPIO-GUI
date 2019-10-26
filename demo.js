@@ -41,70 +41,6 @@ function setUpAgent() {
   // Make a graceful exit
   pubsub.filter("shutdown", handleShutdown);
 
-  // Process a buttonEvent" }
-  pubsub.on(
-    "initButtons",
-    () => {
-      /*
-       * Use the internal pulldown resistor to default to off.  Pressing the button
-       * causes the input to go high, releasing it leaves the pulldown resistor to
-       * pull it back down to low.
-       */
-      // rpio.open(buttonPin, rpio.INPUT);
-      return new Observable(notify => {
-        rpio.poll(buttonPin, pin => {
-          try {
-            /*
-             * Wait for a small period of time to avoid rapid changes which
-             * can't all be caught with the 1ms polling frequency.  If the
-             * pin is no longer down after the wait then ignore it.
-             */
-            rpio.msleep(20);
-            const state = rpio.read(pin);
-            notify.next({ pin, state });
-          } catch (ex) {
-            console.log("Button error: " + ex.message);
-            // notify.error(ex)
-          }
-        });
-        return () => rpio.close(buttonPin);
-      });
-    },
-    { type: "buttonEvent" }
-  );
-
-  // Process some buttonEvents upon startup
-  pubsub.on(
-    "initButtons",
-    () => {
-      /*
-       * Use the internal pulldown resistor to default to off.  Pressing the button
-       * causes the input to go high, releasing it leaves the pulldown resistor to
-       * pull it back down to low.
-       */
-      rpio.open(buttonPin, rpio.INPUT);
-      return new Observable(notify => {
-        rpio.poll(buttonPin, pin => {
-          try {
-            /*
-             * Wait for a small period of time to avoid rapid changes which
-             * can't all be caught with the 1ms polling frequency.  If the
-             * pin is no longer down after the wait then ignore it.
-             */
-            rpio.msleep(20);
-            const state = rpio.read(pin);
-            notify.next({ pin, state });
-          } catch (ex) {
-            console.log("Button error: " + ex.message);
-            // notify.error(ex)
-          }
-        });
-        return () => rpio.close(buttonPin);
-      });
-    },
-    { type: "buttonEvent" }
-  );
-
   pubsub.on(
     "start",
     () => {
@@ -115,10 +51,21 @@ function setUpAgent() {
       [statusPin, greenPin, redPin].forEach(pin => {
         rpio.open(pin, rpio.OUTPUT, rpio.LOW);
       });
+
+      rpio.poll(buttonPin, pin => {
+        try {
+          rpio.msleep(20);
+          const state = rpio.read(pin);
+          trigger("buttonEvent", { pin, state });
+        } catch (ex) {
+          console.log("Button error: " + ex.message);
+        }
+      });
+
       // on startup turn on status
       setStatus(true);
-      turnRedOff()
-      turnGreenOff()
+      turnRedOff();
+      turnGreenOff();
 
       // Return the startup dance
       return concat(
@@ -165,7 +112,6 @@ function buzzThemIn() {
     after(200, () => trigger("setColor", "red"))
   );
 }
-
 
 function setGreen(status = true) {
   if (status) {
