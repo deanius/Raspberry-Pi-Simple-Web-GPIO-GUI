@@ -41,9 +41,9 @@ function setUpAgent() {
   pubsub.on(
     "start",
     () => {
-      rpio.init({ mapping: "gpio" });
-      // spare us the need of a wire to do this
-      rpio.pud(buttonPin, rpio.PULL_DOWN);
+      // rpio.init({ mapping: "gpio" });
+      // // spare us the need of a wire to do this
+      // rpio.pud(buttonPin, rpio.PULL_DOWN);
 
       // [statusPin, greenPin, redPin].forEach(pin => {
       //   rpio.open(pin, rpio.OUTPUT, rpio.LOW);
